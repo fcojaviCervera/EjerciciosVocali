@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 namespace Ejercicio1
 {
-    class Periodo 
+    class Periodo : IComparable
     {
 
         public string Id { get; set; }
@@ -19,17 +17,22 @@ namespace Ejercicio1
             Fin = _Fin;
         }
 
+        public Periodo()
+        {
+        }
+
         public bool IsValid()
         {
             //Expresion regular para validar la hora
             Regex validHour = new Regex(@"^(0[0-9]|1[0-9]|2[0-3]):[0-5][0-9]$");
 
             return
-                    (!string.IsNullOrEmpty(Id)) &&
-                    (!string.IsNullOrEmpty(Ini)) &&
-                    (!string.IsNullOrEmpty(Fin)) &&
+                    !string.IsNullOrEmpty(Id) &&
+                    !string.IsNullOrEmpty(Ini) &&
+                    !string.IsNullOrEmpty(Fin) &&
                     validHour.IsMatch(Ini) &&
-                    validHour.IsMatch(Fin);
+                    validHour.IsMatch(Fin) &&
+                    TimeSpan.Parse(Ini) < TimeSpan.Parse(Fin);
         }
 
         public override bool Equals(object obj)
@@ -44,7 +47,7 @@ namespace Ejercicio1
 
         public override int GetHashCode()
         {
-            return Ini.GetHashCode()+Fin.GetHashCode()+Id.GetHashCode();
+            return Ini.GetHashCode()+Fin.GetHashCode();
         }
 
         /***
@@ -57,10 +60,20 @@ namespace Ejercicio1
             TimeSpan objtimeSpanIni = TimeSpan.Parse(obj.Ini);
             TimeSpan objtimeSpanFin = TimeSpan.Parse(obj.Fin);
             TimeSpan minuto = TimeSpan.Parse("00:01");
-
+            
+            //Mismos periodos
             if (timeSpanIni == objtimeSpanIni && timeSpanFin == objtimeSpanFin)
             {
-                Console.WriteLine("\tPeriodos iguales. No intersectan. -> Id : {0} y {3} | Ini: {1} | Fin: {2}", Id, obj.Ini, obj.Fin,obj.Id);
+                Console.WriteLine("\tPeriodos iguales. No intersectan. -> Id : {0} y {3} | Ini: {1} | Fin: {2}", Id, obj.Ini, Fin, obj.Id);
+                //Guardamos el id y nos quedamos con el 
+                Id += obj.Id;
+                return null;
+            }
+            else if (timeSpanIni == objtimeSpanIni && timeSpanFin <= objtimeSpanFin)
+            {
+                Console.WriteLine("\tPeriodos con mismo comienzo.  -> Id : {0} | Ini: {1} | Fin: {2}", Id + obj.Id, Ini, obj.Fin);
+                Id += obj.Id;
+                obj.Ini = timeSpanFin.Add(minuto).ToString(@"hh\:mm");
                 return null;
             }
             else if (timeSpanIni<=objtimeSpanIni && timeSpanFin > objtimeSpanFin)
@@ -72,12 +85,11 @@ namespace Ejercicio1
                 obj.Id = Id+"\'";
                 obj.Fin = Fin;
                 Fin = objtimeSpanIni.Subtract(minuto).ToString(@"hh\:mm");
-                obj.Ini = objtimeSpanFin.Add(minuto).ToString(@"hh\:mm");
-                
+                obj.Ini = objtimeSpanFin.Add(minuto).ToString(@"hh\:mm");                
 
                 return p;
             }
-            else if (timeSpanIni <= objtimeSpanIni && timeSpanFin > objtimeSpanIni)
+            else if (timeSpanIni < objtimeSpanIni && timeSpanFin > objtimeSpanIni)
             {
                 Console.WriteLine("\tPeriodo interseccion-> Id : {0} | Ini: {1} | Fin: {2}", Id + obj.Id, obj.Ini, Fin);
                 Periodo p = new Periodo(Id + obj.Id, obj.Ini, Fin);
@@ -85,7 +97,7 @@ namespace Ejercicio1
                 obj.Ini = timeSpanFin.Add(minuto).ToString(@"hh\:mm");
                 return p;
             }
-            else if (timeSpanIni <= objtimeSpanFin && timeSpanFin > objtimeSpanFin)
+            else if (timeSpanIni < objtimeSpanFin && timeSpanFin > objtimeSpanFin)
             {
                 Console.WriteLine("\tPeriodo interseccion-> Id : {0} | Ini: {1} | Fin: {2}", obj.Id + Id, Ini, obj.Fin);
                 Periodo p = new Periodo(obj.Id + Id, Ini, obj.Fin);
@@ -97,6 +109,9 @@ namespace Ejercicio1
             return null;
         }
 
-
+        public int CompareTo(object obj)
+        {
+            return Ini.CompareTo(obj);
+        }
     }
 }
