@@ -48,6 +48,8 @@ namespace Ejercicio1
                     periodosProcesados = ProcesarIntersecciones(periodos);
                 }
                 EscribirResultado(periodos);
+                Console.WriteLine("Pulse cualquier tecla para finalizar...");
+                Console.ReadKey();
             }
             else
             {
@@ -60,6 +62,7 @@ namespace Ejercicio1
             SortedSet<Periodo> resultado = new SortedSet<Periodo>(Comparer<Periodo>.Create((a1, a2) => TimeSpan.Parse(a1.Ini).CompareTo(TimeSpan.Parse(a2.Ini))));
             Console.WriteLine("Periodos tras procesar el fichero");
 
+            //Pasamos a sortedSet para ordenar el resultado por Ini
             foreach (var item in periodos)
             {
                 resultado.Add(item);
@@ -69,15 +72,12 @@ namespace Ejercicio1
             {
                 StringBuilder salida = new StringBuilder();
                 string fichero_salida = ConfigurationManager.AppSettings["RutaEjecucion"] + string.Format("out_Ejercicio1_{0:yyyyMMddhhmmss}.csv", DateTime.Now);
-
-
                 char sp = ConfigurationManager.AppSettings["Separador"].FirstOrDefault();
                 foreach (var item in resultado)
                 {
                     Console.WriteLine("\tPeriodo -> Id : {0} | Ini: {1} | Fin: {2}", item.Id, item.Ini, item.Fin);
                     salida.AppendLine(string.Join(sp, item.Id, item.Ini, item.Fin));
                 }
-
                 File.WriteAllText(fichero_salida, salida.ToString());
                 Console.WriteLine("Fichero escrito con éxito: " + fichero_salida);
             }
@@ -91,24 +91,21 @@ namespace Ejercicio1
         {
             HashSet<Periodo> salida = new HashSet<Periodo>();
             List<Periodo> copia = periodos.ToList();
-
-
             foreach (var item in periodos)
             {
                 //Se elimina el propio elemento para evitar iterar sobre el mismo                
                 copia.Remove(item);
-
                 foreach (var item2 in copia)
                 {
-                        Periodo interseccion = item.Intersect(item2);
-                        if (interseccion != null)
-                        {
-                            salida.Add(interseccion);
-                        }     
+                    Periodo interseccion = item.Intersect(item2);
+                    if (interseccion != null)
+                    {
+                        salida.Add(interseccion);
+                    }
                 }
             }
             return salida;
-        }      
+        }
 
 
         private static HashSet<Periodo> LeerFichero(string rutaCompleta)

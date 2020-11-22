@@ -17,9 +17,6 @@ namespace Ejercicio1
             Fin = _Fin;
         }
 
-        public Periodo()
-        {
-        }
 
         public bool IsValid()
         {
@@ -47,7 +44,7 @@ namespace Ejercicio1
 
         public override int GetHashCode()
         {
-            return Ini.GetHashCode()+Fin.GetHashCode();
+            return Ini.GetHashCode() + Fin.GetHashCode();
         }
 
         /***
@@ -60,7 +57,7 @@ namespace Ejercicio1
             TimeSpan objtimeSpanIni = TimeSpan.Parse(obj.Ini);
             TimeSpan objtimeSpanFin = TimeSpan.Parse(obj.Fin);
             TimeSpan minuto = TimeSpan.Parse("00:01");
-            
+
             //Mismos periodos
             if (timeSpanIni == objtimeSpanIni && timeSpanFin == objtimeSpanFin)
             {
@@ -76,16 +73,16 @@ namespace Ejercicio1
                 obj.Ini = timeSpanFin.Add(minuto).ToString(@"hh\:mm");
                 return null;
             }
-            else if (timeSpanIni<=objtimeSpanIni && timeSpanFin > objtimeSpanFin)
+            else if (timeSpanIni <= objtimeSpanIni && timeSpanFin > objtimeSpanFin)
             {
                 Console.WriteLine("\tPeriodo incluido dentro de otro. Separamos en 3 periodos -> Id : {0} | Ini: {1} | Fin: {2}", Id + obj.Id, obj.Ini, obj.Fin);
                 Periodo p = new Periodo(Id + obj.Id, obj.Ini, obj.Fin);
 
                 //Reutilizamos Id para indicar que se trata del mismo periodo
-                obj.Id = Id+"\'";
+                obj.Id = Id + "\'";
                 obj.Fin = Fin;
                 Fin = objtimeSpanIni.Subtract(minuto).ToString(@"hh\:mm");
-                obj.Ini = objtimeSpanFin.Add(minuto).ToString(@"hh\:mm");                
+                obj.Ini = objtimeSpanFin.Add(minuto).ToString(@"hh\:mm");
 
                 return p;
             }
@@ -104,7 +101,7 @@ namespace Ejercicio1
                 Ini = objtimeSpanFin.Add(minuto).ToString(@"hh\:mm");
                 obj.Fin = timeSpanIni.Subtract(minuto).ToString(@"hh\:mm");
                 return p;
-            }            
+            }
 
             return null;
         }
